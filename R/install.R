@@ -4,6 +4,7 @@
 #' Conda package is available. Further information on the parameters can
 #' be found in the `reticulate` package documentation:
 #' https://rstudio.github.io/reticulate/
+#' In some cases (multiple Python versions installed) it might be useful to specify the exact path to the `conda` binary.
 #'
 #' Additional requirements (a C++ compiler and GraphViz) of PM4PY might
 #' need to be installed to leverage all functionality;
@@ -19,6 +20,9 @@
 #' @examples
 #' \donttest{
 #'   pm4py::install_pm4py()
+#'
+#'   # Specify path to conda
+#'   pm4py::install_pm4py(method = "conda", conda = "/home/user/miniconda3/bin/conda")
 #' }
 #'
 install_pm4py <- function(method = "auto", conda = "auto", ...) {
@@ -28,11 +32,15 @@ install_pm4py <- function(method = "auto", conda = "auto", ...) {
       reticulate::py_install(paste0("-r", PM4PY_DEPENDENCIES), method = method, conda = conda, pip = TRUE, ...)
     }
     reticulate::py_install(PM4PY_VERSION, method = method, conda = conda, pip = TRUE, ...)
+    # workaround for issue with PM4Py dependencies
+    #reticulate::py_install("ortools", method = method, conda = conda, pip = TRUE, ...)
   },
     error = function(e) {
       # workaround for virtualenv not supporting `pip` parameter
       warning("Could not find `conda` environment, falling back to virtualenv ... ")
       reticulate::py_install(PM4PY_VERSION, method = method, conda = conda, ...)
+      # workaround for issue with PM4Py dependencies
+      #reticulate::py_install("ortools", method = method, conda = conda, ...)
     }
   )
 }
